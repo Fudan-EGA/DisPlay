@@ -111,6 +111,7 @@ void loop() {
   //屏幕显示文字内容：
   clk.createSprite(240,240);    //创建显存区域
   clk.fillScreen(TFT_WHITE); //填充全屏白色，TFT_BLACK为TFT库内部定义，可直接使用
+
   
 
 //  tft.startWrite();//必须先使用startWrite，以便TFT芯片选择保持低的DMA和SPI通道设置保持配置
