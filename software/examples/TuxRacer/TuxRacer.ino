@@ -33,6 +33,8 @@ code  color
 
 #define TFT_GREY 0x5AEB
 
+//#define USE_DMA
+
 TFT_eSPI tft = TFT_eSPI();       // Invoke custom library
 TFT_eSprite clk = TFT_eSprite(&tft); //sprite类实例化（实现内置显存功能）
 
@@ -85,7 +87,6 @@ void setup() {
   tft_DMA_Init(); //TFT屏幕DMA刷新初始化
 
 
-
   /*绘制文字*/
   clk.setColorDepth(8);
   clk.createSprite(240,240);    //创建显存区域
@@ -106,7 +107,13 @@ void loop() {
   // put your main code here, to run repeatedly:
   static uint16_t x = 0, y = 0; //定义方块中心位置
 
-  tft.startWrite();//必须先使用startWrite，以便TFT芯片选择保持低的DMA和SPI通道设置保持配置
+  // Draw the image, top left at 0,0
+  //屏幕显示文字内容：
+  clk.createSprite(240,240);    //创建显存区域
+  clk.fillScreen(TFT_WHITE); //填充全屏白色，TFT_BLACK为TFT库内部定义，可直接使用
+  
+
+//  tft.startWrite();//必须先使用startWrite，以便TFT芯片选择保持低的DMA和SPI通道设置保持配置
   if(millis()-lastTime > dt){  //获取当前时间，并与之前时间进行比较，若大于间隔，则刷新屏幕
     lastTime = millis();
     if(keyNum){
@@ -155,14 +162,10 @@ void loop() {
   else 
     TJpgDec.drawJpg( x, y,penguinR_60, sizeof(penguinR_60));//在左上角的x,y处绘制图像——在这个草图中，DMA请求在回调tft_output()中处理
 
-  tft.endWrite();//必须使用endWrite来释放TFT芯片选择和释放SPI通道吗
-  //memset(&img_buff,0,sizeof(img_buff));//清空buff
-  // Draw the image, top left at 0,0
-  //屏幕显示文字内容：
-  clk.createSprite(240,22);    //创建显存区域
-  clk.fillScreen(TFT_WHITE); //填充全屏白色，TFT_BLACK为TFT库内部定义，可直接使用
   clk.setTextColor(TFT_BLACK);
   clk.drawCentreString("Tux Racer inital test", 120, 2, 4); // Draw text centre at position 120, 0 using font 4
+  //tft.endWrite();//必须使用endWrite来释放TFT芯片选择和释放SPI通道吗
+  
   clk.pushSprite(0, 0); //左上角位置
   clk.deleteSprite();
 
@@ -201,13 +204,11 @@ void BEEP_Init()
 
 bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap)
 {
-  static uint16_t  PROGMEM dmaBuffer1[32*32]; // Toggle buffer for 32*32 MCU block, 1024bytes
-  static uint16_t  PROGMEM dmaBuffer2[32*32]; // Toggle buffer for 32*32 MCU block, 1024bytes
-  static uint16_t* dmaBufferPtr = dmaBuffer1;
-  static bool dmaBufferSel = 0;
 
+   // Stop further decoding as image is running off bottom of screen
   if ( y >= tft.height() ) return 0;
- 
+
+#ifdef USE_DMA
   // Double buffering is used, the bitmap is copied to the buffer by pushImageDMA() the
   // bitmap can then be updated by the jpeg decoder while DMA is in progress
   if (dmaBufferSel) dmaBufferPtr = dmaBuffer2;
@@ -215,6 +216,12 @@ bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap)
   dmaBufferSel = !dmaBufferSel; // Toggle buffer selection
   //  pushImageDMA() will clip the image block at screen boundaries before initiating DMA
   tft.pushImageDMA(x, y, w, h, bitmap, dmaBufferPtr); // Initiate DMA - blocking only if last DMA is not complete
+  // The DMA transfer of image block to the TFT is now in progress...
+#else
+  // Non-DMA blocking alternative
+  clk.pushImage(x, y, w, h, bitmap);  // Blocking, so only returns when image block is drawn
+#endif
+  // Return 1 to decode next block.
   return 1;
 }
 
@@ -228,7 +235,9 @@ void tft_DMA_Init()
 
   // Initialise the TFT
   tft.begin();
+#ifdef USE_DMA
   tft.initDMA();
+#endif
   tft.setRotation(0);
 
   // The jpeg image can be scaled by a factor of 1, 2, 4, or 8
