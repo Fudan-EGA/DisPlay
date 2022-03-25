@@ -339,7 +339,7 @@ void draw_star(uint8_t x, uint8_t y) //绘制星星图案
   clk.fillTriangle(x, y+5, x+4, y+2, x+7, y+11, COLOR_STAR);
 }
 
-void draw_stone(uint8_t x, uint8_t y) //绘制石头障碍物
+void draw_stone(uint8_t x, uint8_t y) //绘制障碍物石头
 {
   clk.fillTriangle(x, y-16, x-14, y+16, x+14, y+16, COLOR_ICE);
 }
