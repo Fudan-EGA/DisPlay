@@ -24,7 +24,8 @@
 #define KEY_C 19
 #define KEY_D 21
 
-#define BEEP 15
+#define BEEP 15  //蜂鸣器
+#define BL   22  //背光
 
 //屏幕方向与按键方向不一致，需要重新定义
 #define FORWARD   'L'
@@ -35,5 +36,7 @@
 void KEY_Init();  //按键管脚初始化
 void BEEP_Init(); //蜂鸣器初始化
 void tft_DMA_Init(); //TFT屏幕DMA刷新初始化
+void volume_set(uint8_t v);  //音量设置，最大值：5*20 = 100
+void backlight_set(uint8_t bl);  //背光亮度设置，最大值：5*20 = 100
 
 #endif/* _BSP_INIT_H_ */

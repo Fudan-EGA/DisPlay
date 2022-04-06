@@ -43,7 +43,7 @@ void tft_DMA_Init()
 {
   //背光调节，通道0
   ledcSetup(0,5000,8);
-  ledcAttachPin(22,0);
+  ledcAttachPin(BL,0);
   ledcWrite(0,200);
   
   // Initialise the TFT
@@ -145,3 +145,18 @@ void KEY_D_Handler()
   attachInterrupt(KEY_C, KEY_C_Handler, FALLING);//绑定按键中断处理句柄，下降沿中断，按下时将自动进入Handler处理
   attachInterrupt(KEY_D, KEY_D_Handler, FALLING);//绑定按键中断处理句柄，下降沿中断，按下时将自动进入Handler处理
 }
+
+void volume_set(uint8_t v)  //音量设置，最大值：5*20 = 100
+{
+  ledcSetup(8, 1000, 10);  
+  ledcAttachPin(BEEP, 8); 
+  ledcWrite(8, v*20);   
+  delay(100);
+  ledcWrite(8, 0); 
+}
+
+void backlight_set(uint8_t bl)  //背光亮度设置，最大值：5*20 = 100
+{ 
+  ledcWrite(0, bl*20);   
+}
+

@@ -2,8 +2,11 @@
 
 extern TFT_eSPI tft;       // Invoke custom library
 extern TFT_eSprite clk;
+extern uint8_t volume ; /*音量：0-5档*/
+extern uint8_t light ; /*背光亮度 0-5档*/
 
 const String set_level[]={"0", "1", "2", "3", "4", "5"};
+static uint16_t page_state=1;
 
 void home_page(uint8_t c) //首页
 {
@@ -28,7 +31,7 @@ void home_page(uint8_t c) //首页
     clk.drawString("设置", 120,180);
     clk.setTextColor(TFT_GREY, TFT_WHITE); 
     clk.drawString("D键: 选择", 60,225);
-    clk.drawString("C键: 返回", 180,225);
+    clk.drawString("A键: 返回", 180,225);
 
     clk.unloadFont(); //释放加载字体资源
     clk.pushSprite(0,0);
@@ -76,7 +79,7 @@ void setting_page(uint8_t c, uint8_t vol, uint8_t light)  //设置页面
     clk.setTextColor(TFT_GREY, TFT_WHITE);
 
     clk.drawString("左键: 减小", 60,200);clk.drawString("右键: 增大", 180,200);
-    clk.drawString("C键: 返回", 180,228);
+    clk.drawString("D键: 选择", 60,225);clk.drawString("A键: 返回", 180,228);
 
     clk.unloadFont(); //释放加载字体资源
     clk.pushSprite(0,0);
@@ -104,9 +107,128 @@ void game_select_page(uint8_t c) //游戏选择页面
     clk.drawString("待开发...", 120,170);
     clk.setTextColor(TFT_GREY, TFT_WHITE); 
     clk.drawString("D键: 选择", 60,225);
-    clk.drawString("C键: 返回", 180,225);
+    clk.drawString("A键: 返回", 180,225);
 
     clk.unloadFont(); //释放加载字体资源
     clk.pushSprite(0,0);
     clk.deleteSprite();
+}
+
+int page_run(uint8_t key)  //页面调度状态机运行
+{
+    switch(page_state){
+        case 1:  //首页选择游戏
+            if((key == 'G') ){
+                home_page(SETTING);
+                page_state = 2;
+                break;
+            }
+            if((key == 'D')){
+                game_select_page(GAME_1);
+                page_state = 3;
+                break;
+            }
+            home_page(GAME_SELECT);
+            break;
+        case 2:   //首页选择设置
+            if((key == 'F') ){
+                home_page(GAME_SELECT);
+                page_state = 1;
+                break;
+            }
+            if((key == 'D')){
+                setting_page(VOLUME_SELECT, volume, light);
+                page_state = 5;
+                break;
+            }
+            home_page(SETTING);
+            break;
+        case 3:   //选择游戏1
+            if((key == 'A')){
+                home_page(GAME_SELECT);
+                page_state = 1;
+                break;
+            }
+            if((key == 'G') ){
+                game_select_page(GAME_2);
+                page_state=4;
+                break;
+            }
+            if((key == 'D')){
+                game_select_page(GAME_1);
+                page_state = 3;
+                return GAME_1;  //返回参数，启动游戏1 
+                break;
+            }
+            game_select_page(GAME_1);
+            break;
+        case 4:
+            if((key == 'A')){
+                home_page(GAME_SELECT);
+                page_state = 1;
+                break;
+            }
+            if((key == 'F')){
+                game_select_page(GAME_1);
+                page_state=4;
+                break;
+            }
+            if((key == 'D')){
+                game_select_page(GAME_2);
+                page_state = 4;
+                return GAME_2;  //返回参数，启动游戏1 
+                break;
+            }
+            game_select_page(GAME_2);
+            break;
+        case 5:   //设置页音量修改
+            if((key == 'A')){
+                home_page(SETTING);
+                page_state = 2;
+                break;
+            }
+            if(key == 'R'){
+                setting_page(VOLUME_UP, LIMIT_PLUS(volume), light);
+                return 1;   //返回信息，设置更改
+                break;
+            }
+            if(key == 'L'){
+                setting_page(VOLUME_DOWN, LIMIT_SUB(volume), light);
+                return 1;
+                break;
+            }
+            if((key == 'G') ){
+                setting_page(LIGHT_SELECT, volume, light);
+                page_state=6;
+                break;
+            }
+            setting_page(VOLUME_SELECT, volume, light);
+            break;
+        case 6:   //设置页亮度调节
+            if((key == 'A')){
+                home_page(SETTING);
+                page_state = 2;
+                break;
+            }
+            if(key == 'R'){
+                setting_page(LIGHT_UP, volume, LIMIT_PLUS(light));
+                return 2;   //返回信息，设置更改
+                break;
+            }
+            if(key == 'L'){
+                setting_page(LIGHT_DOWN, volume, LIMIT_SUB(light));
+                return 2;
+                break;
+            }
+            if((key == 'F') ){
+                setting_page(VOLUME_SELECT, volume, light);
+                page_state=5;
+                break;
+            }
+            setting_page(LIGHT_SELECT, volume, light);
+            break;
+        default:
+            break;
+    }
+    return 0;
 }

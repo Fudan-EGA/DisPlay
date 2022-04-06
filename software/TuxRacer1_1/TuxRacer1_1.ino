@@ -46,8 +46,12 @@ using namespace std;
 TFT_eSPI tft = TFT_eSPI();       // Invoke custom library
 TFT_eSprite clk = TFT_eSprite(&tft); //sprite类实例化（实现内置显存功能）
 
-/**********按键相关函数声明*************/
+/**********全局变量*************/
 char keyNum=1; //保存按键值
+uint8_t volume = 0; /*音量：0-5档*/
+uint8_t light = 0; /*背光亮度 0-5档*/
+
+
 
 class something
 {
@@ -56,7 +60,6 @@ class something
   int x;
   int y;
 };
-
 
 /**********游戏结构相关函数声明*************/
 int state=0;
@@ -119,13 +122,13 @@ void loop() {
   if(millis()-lastTime > dt){  //获取当前时间，并与之前时间进行比较，若大于间隔，则刷新屏幕
     lastTime = millis();
     //gamestate[state]();
-    home_page(GAME_SELECT);
+    /*    home_page(GAME_SELECT);
     delay(2000);
     home_page(SETTING);
     delay(2000);
-    game_select_page(GAME_1);
-    delay(2000);
     game_select_page(GAME_2);
+    delay(2000);
+    game_select_page(GAME_1);
     delay(2000);
     setting_page(VOLUME_SELECT, 3, 4);  //设置页面
     delay(2000);
@@ -135,6 +138,31 @@ void loop() {
     delay(2000);
     setting_page(LIGHT_DOWN, 3, 4);  //设置页面
     delay(2000);
+*/
+    if(keyNum){
+      switch(page_run(keyNum)){
+        case 1:  //返回值为音量修改
+          setting_page(VOLUME_SELECT, volume, light);
+          volume_set(volume);
+          break;
+        case 2:  //返回值为亮度修改
+          setting_page(LIGHT_SELECT, volume, light);
+          backlight_set(light);
+          break;
+        case GAME_1:
+          break;
+        case GAME_2:
+          break;
+        default:
+          break;
+        }
+        keyNum = 0;
+      }
+      Serial.println(keyNum);
+    
+
+    
+
 
     /*if(keyNum){
       Serial.println(keyNum);  //串口输出按键值
@@ -212,6 +240,11 @@ void Menu()
       }
   clk.pushSprite(0, 0); //左上角位置
   clk.deleteSprite();
+
+  home_page(ENTER_PAGE);
+  
+
+
 }
 
 void Game()
