@@ -29,7 +29,8 @@ code  color
 #include <TFT_eSPI.h> // Hardware-specific library
 #include <TJpg_Decoder.h>
 #include <SPI.h>
-#include "img/penguin.h"
+
+#include "GUI_draw.h"
 
 #define TFT_GREY        0x5AEB
 #define COLOR_ICE       0xb63b
@@ -80,6 +81,7 @@ void KEY_B_Handler();
 void KEY_C_Handler();
 void KEY_D_Handler();
 
+#if 0
 
 /************图形绘制函数声明******************/
 void draw_penguinL(uint8_t x, uint8_t y); //绘制朝左企鹅
@@ -88,6 +90,7 @@ void draw_star(uint8_t x, uint8_t y); //绘制星星图案
 void draw_stone(uint8_t x, uint8_t y); //绘制石头障碍物
 void draw_tree(uint8_t x ,uint8_t y); //绘制障碍物树
 
+#endif
 
 void setup() {
   // put your setup code here, to run once:
@@ -115,7 +118,7 @@ uint16_t dt=20; //设置屏幕刷新时间间隔（单位ms）
 uint32_t lastTime=0;
 
 void loop() {
-   static uint16_t x = 0, y = 0, y1=0; //定义方块中心位置
+   static uint16_t x = 0, y = 0, y1=0, y2=0; //定义方块中心位置
 
   // Draw the image, top left at 0,0
   //屏幕显示文字内容：
@@ -181,8 +184,10 @@ void loop() {
   draw_tree(80,240-y1);
   draw_stone(160,180-y1);
   draw_tree(180,130-y1);
+
+  element_move(&y2, 100, 150, 6);
   
-  draw_star(120,120);
+  draw_star(120,y2);
   
   clk.pushSprite(0, 0); //左上角位置
   clk.deleteSprite();
@@ -320,6 +325,7 @@ void KEY_D_Handler(){
   }
 }
 
+#if 0
 
 void draw_penguinL(uint8_t x, uint8_t y) //绘制朝左企鹅
 {
@@ -350,3 +356,5 @@ void draw_tree(uint8_t x, uint8_t y) //绘制障碍物树
   clk.fillTriangle(x, y-5, x-24, y+22, x+24, y+22, COLOR_TREE);
   clk.fillRect(x-2,y+23,4,10,COLOR_TREEROOT);
 }
+
+#endif
