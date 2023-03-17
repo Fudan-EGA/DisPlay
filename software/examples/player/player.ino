@@ -199,6 +199,6 @@ void music_set(char note) //设置音符：1、2、3、4、5、6、7、8（升1�
 {
     ledcSetup(8, music[note-1], 10);  //设置LEDC通道8频率为music数组，即不同音高
     ledcAttachPin(BEEP, 8); //设置LEDC通道8在IO上输出
-    ledcWrite(8, 20); //设置输出PWM占空比
+    ledcWrite(8, 200); //设置输出PWM占空比
     delay(200);  //延时200毫秒
 }
