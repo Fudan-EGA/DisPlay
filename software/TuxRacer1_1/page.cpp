@@ -5,14 +5,14 @@ extern TFT_eSprite clk;
 extern uint8_t volume ; /*音量：0-5档*/
 extern uint8_t light ; /*背光亮度 0-5档*/
 
-const String set_level[]={"0", "1", "2", "3", "4", "5"};
+const String set_level[]={"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
 static uint16_t page_state=1;
 
 void home_page(uint8_t c) //首页
 {
     clk.setColorDepth(8);
     clk.createSprite(240, 240);
-    clk.fillSprite(TFT_WHITE);
+    clk.fillSprite(TFT_BLACK);
 
     if(c == GAME_SELECT){
         clk.drawRect(75, 114, 95, 30, 0xb63b);
@@ -21,17 +21,17 @@ void home_page(uint8_t c) //首页
         clk.drawRect(95, 164, 50, 30, 0xb63b);
     } 
     
-    clk.setTextColor(TFT_BLACK);
+    clk.setTextColor(TFT_WHITE);
     clk.drawCentreString("DisPlay", 120, 40, 4); // Draw text centre at position 120, 0 using font 4
 
     clk.loadFont(ZdyLwFont_20); //加载font/ZdyLwFont_20字体
     clk.setTextDatum(CC_DATUM);
-    clk.setTextColor(TFT_BLACK, TFT_WHITE); 
+    clk.setTextColor(TFT_WHITE, TFT_BLACK); 
     clk.drawString("选择游戏", 120,130);
     clk.drawString("设置", 120,180);
-    clk.setTextColor(TFT_GREY, TFT_WHITE); 
-    clk.drawString("D键: 选择", 60,225);
-    clk.drawString("A键: 返回", 180,225);
+    clk.setTextColor(TFT_GREY, TFT_BLACK); 
+    clk.drawString("[D]选择", 60,225);
+    clk.drawString("[A]返回", 180,225);
 
     clk.unloadFont(); //释放加载字体资源
     clk.pushSprite(0,0);
@@ -42,10 +42,10 @@ void setting_page(uint8_t c, uint8_t vol, uint8_t light)  //设置页面
 {
     clk.setColorDepth(8);
     clk.createSprite(240, 240);
-    clk.fillSprite(TFT_WHITE);
+    clk.fillSprite(TFT_BLACK);
     clk.loadFont(ZdyLwFont_20); //加载font/ZdyLwFont_20字体
     clk.setTextDatum(CC_DATUM);
-    clk.setTextColor(TFT_BLACK, TFT_WHITE); 
+    clk.setTextColor(TFT_WHITE, TFT_BLACK); 
 
     clk.drawString(set_level[vol], 172,100);
     clk.drawString(set_level[light], 172,140);
@@ -71,15 +71,15 @@ void setting_page(uint8_t c, uint8_t vol, uint8_t light)  //设置页面
         clk.drawRect(135, 125, 30, 30, 0xb63b);
     } 
     
-    clk.setTextColor(TFT_BLACK);
+    clk.setTextColor(TFT_WHITE);
     clk.drawString("设置", 120, 40); // Draw text centre at position 120, 0 using font 4
 
     clk.drawString("音量", 70, 100);clk.drawString("-", 150, 100);clk.drawString("+", 200, 100);
     clk.drawString("亮度", 70, 140);clk.drawString("-", 150, 140);clk.drawString("+", 200, 140);
-    clk.setTextColor(TFT_GREY, TFT_WHITE);
+    clk.setTextColor(TFT_GREY, TFT_BLACK);
 
-    clk.drawString("左键: 减小", 60,200);clk.drawString("右键: 增大", 180,200);
-    clk.drawString("D键: 选择", 60,225);clk.drawString("A键: 返回", 180,228);
+    clk.drawString("[左]减小", 60,200);clk.drawString("[右]增大", 180,200);
+    clk.drawString("[D]选择", 60,225);clk.drawString("[A]返回", 180,228);
 
     clk.unloadFont(); //释放加载字体资源
     clk.pushSprite(0,0);
@@ -90,7 +90,7 @@ void game_select_page(uint8_t c) //游戏选择页面
 {
     clk.setColorDepth(8);
     clk.createSprite(240, 240);
-    clk.fillSprite(TFT_WHITE);
+    clk.fillSprite(TFT_BLACK);
     
     if(c == GAME_1){
         clk.drawRect(70, 105, 100, 30, 0xb63b);
@@ -101,13 +101,13 @@ void game_select_page(uint8_t c) //游戏选择页面
 
     clk.loadFont(ZdyLwFont_20); //加载font/ZdyLwFont_20字体
     clk.setTextDatum(CC_DATUM);
-    clk.setTextColor(TFT_BLACK, TFT_WHITE); 
+    clk.setTextColor(TFT_WHITE, TFT_BLACK); 
     clk.drawString("选择游戏", 120,50);
     clk.drawString("Tux Racer", 120,120);
     clk.drawString("待开发...", 120,170);
-    clk.setTextColor(TFT_GREY, TFT_WHITE); 
-    clk.drawString("D键: 选择", 60,225);
-    clk.drawString("A键: 返回", 180,225);
+    clk.setTextColor(TFT_GREY, TFT_BLACK); 
+    clk.drawString("[D]选择", 60,225);
+    clk.drawString("[A]返回", 180,225);
 
     clk.unloadFont(); //释放加载字体资源
     clk.pushSprite(0,0);
@@ -162,7 +162,7 @@ int page_run(uint8_t key)  //页面调度状态机运行
             }
             game_select_page(GAME_1);
             break;
-        case 4:
+        case 4:   //选择游戏2
             if((key == 'A')){
                 home_page(GAME_SELECT);
                 page_state = 1;
@@ -170,13 +170,13 @@ int page_run(uint8_t key)  //页面调度状态机运行
             }
             if((key == 'F')){
                 game_select_page(GAME_1);
-                page_state=4;
+                page_state = 4;
                 break;
             }
             if((key == 'D')){
                 game_select_page(GAME_2);
                 page_state = 4;
-                return GAME_2;  //返回参数，启动游戏1 
+                return GAME_2;  //返回参数，启动游戏2
                 break;
             }
             game_select_page(GAME_2);
@@ -231,4 +231,12 @@ int page_run(uint8_t key)  //页面调度状态机运行
             break;
     }
     return 0;
+}
+
+void page_game_quit(char game) //游戏退出
+{
+    if(game == GAME_1)
+        page_state = 3;
+    if(game == GAME_2)
+        page_state = 4;
 }

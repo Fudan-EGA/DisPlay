@@ -23,7 +23,6 @@ code  color
 0x7FF Cyan
 0x1F  Blue
 0xF81F  Pink
-
  */
 
 #include <TFT_eSPI.h> // Hardware-specific library
@@ -39,7 +38,7 @@ code  color
 #include "GUI_draw.h"
 #include "bsp_init.h"
 #include "page.h"
-//#include "game.h"
+#include "game.h"
 
 using namespace std;
 
@@ -50,7 +49,6 @@ TFT_eSprite clk = TFT_eSprite(&tft); //sprite类实例化（实现内置显存�
 char keyNum=1; //保存按键值
 uint8_t volume = 0; /*音量：0-5档*/
 uint8_t light = 0; /*背光亮度 0-5档*/
-
 
 
 class something
@@ -81,14 +79,10 @@ void refresh(vector<something> &v);//刷新位置
 
 void setup() {
   // put your setup code here, to run once:
-
   Serial.begin(115200); //串口打印，波特率115200
-  
-
   BEEP_Init();
   KEY_Init(); //按键初始化
   tft_DMA_Init(); //TFT屏幕DMA刷新初始化
-
 
   /*绘制文字*/
   clk.setColorDepth(8);
@@ -103,7 +97,6 @@ void setup() {
   gamestate.push_back(Menu);
   gamestate.push_back(Game);
   gamestate.push_back(EndGame);
-
 }
 
 uint16_t dt=20; //设置屏幕刷新时间间隔（单位ms）
@@ -111,35 +104,15 @@ uint32_t lastTime=0;
 
 void loop() {
   // put your main code here, to run repeatedly:
-
-  // Draw the image, top left at 0,0
-  //屏幕显示文字内容：
-  //clk.createSprite(240,240);    //创建显存区域
-  //clk.fillScreen(TFT_WHITE); //填充全屏白色，TFT_BLACK为TFT库内部定义，可直接使用
-  
-
-//  tft.startWrite();//必须先使用startWrite，以便TFT芯片选择保持低的DMA和SPI通道设置保持配置
   if(millis()-lastTime > dt){  //获取当前时间，并与之前时间进行比较，若大于间隔，则刷新屏幕
     lastTime = millis();
-    //gamestate[state]();
-    /*    home_page(GAME_SELECT);
-    delay(2000);
-    home_page(SETTING);
-    delay(2000);
-    game_select_page(GAME_2);
-    delay(2000);
-    game_select_page(GAME_1);
-    delay(2000);
-    setting_page(VOLUME_SELECT, 3, 4);  //设置页面
-    delay(2000);
-    setting_page(LIGHT_SELECT, 3, 4);  //设置页面
-    delay(2000);
-    setting_page(VOLUME_UP, 3, 4);  //设置页面
-    delay(2000);
-    setting_page(LIGHT_DOWN, 3, 4);  //设置页面
-    delay(2000);
-*/
-    if(keyNum){
+    gamestate[state](); 
+  }
+}
+
+void Menu()
+{
+  if(keyNum){
       switch(page_run(keyNum)){
         case 1:  //返回值为音量修改
           setting_page(VOLUME_SELECT, volume, light);
@@ -150,106 +123,46 @@ void loop() {
           backlight_set(light);
           break;
         case GAME_1:
+          state = 1;  //切换状态
           break;
         case GAME_2:
           break;
         default:
           break;
         }
+        Serial.println(keyNum);
         keyNum = 0;
       }
-      Serial.println(keyNum);
-    
-
-    
-
-
-    /*if(keyNum){
-      Serial.println(keyNum);  //串口输出按键值
-      switch(keyNum){
-        case FORWARD:
-          //可添加按下按键对应的操作
-          if(x>2){
-            x-=3;
-          }
-
-          break;
-        case BACKWARD:
-          if(x<220){
-            x+=3;
-          }
-
-          break;
-        case RIGHT:
-          if(y<220){
-            y+=3;
-          }
-
-          break;
-        case LEFT:
-          if(y>2){
-            y-=3;
-          }
-          break;
-        case 'A':
-        
-        case 'B':
-        
-        case 'C':
-        
-        case 'D':
-        y+=10;
-        
-        default:break;
-      }
-    }*/
-  
-  }
-  /*if(keyNum==FORWARD){
-    TJpgDec.drawJpg( x, y, penguinL_60, sizeof(penguinL_60));//在左上角的x,y处绘制图像——在这个草图中，DMA请求在回调tft_output()中处理
-  }
-  else 
-    TJpgDec.drawJpg( x, y,penguinR_60, sizeof(penguinR_60));//在左上角的x,y处绘制图像——在这个草图中，DMA请求在回调tft_output()中处理*/
-}
-
-
-
-void Menu()
-{
-  clk.setTextColor(TFT_BLACK);
-  clk.drawCentreString("Tux Racer Menu", 120, 0, 4); // Draw text centre at position 120, 0 using font 4
-  clk.drawCentreString("Start", 180, 80, 4); // Draw text centre at position 120, 0 using font 4
-  if(Menuidx==0)clk.drawRect(150, 75, 60, 30,TFT_BLACK);
-  clk.drawCentreString("Exit", 180, 160, 4); // Draw text centre at position 120, 0 using font 4
-  if(Menuidx==1)clk.drawRect(150, 155, 60, 30,TFT_BLACK);
-  //tft.endWrite();//必须使用endWrite来释放TFT芯片选择和释放SPI通道吗
-  
-  if(keyNum=='D')
-      {
-        if(Menuidx==0)
-        {
-          score=0;
-        keyNum=1;state=(state+1)%3;
-        }
-        if(Menuidx==1);
-        //关机待写入
-      }
-  if(keyNum=='F'||keyNum=='G')
-      {
-        keyNum=1;Menuidx=(Menuidx+1)%2;
-      }
-  clk.pushSprite(0, 0); //左上角位置
-  clk.deleteSprite();
-
-  home_page(ENTER_PAGE);
-  
-
-
 }
 
 void Game()
 {
-   static uint16_t x = 120, y = 50,j=0,cd=0; //定义方块中心位置
+    static int game_state = 0;
+    if(keyNum){
+    switch(game_state){
+      case GAME_START:
+        game_start();
+        game_state = GAME_RUN;
+        break;
+      case GAME_RUN:
+        if(game_run(keyNum) == 1)
+          game_state = GAME_END;
+        break;
+      case GAME_END:
+        if(game_stop(keyNum) == 1)
+          game_state = GAME_RUN;  //重新开始游戏
+        else{
+          page_game_quit(GAME_1);
+          state  = 0;  //进入菜单页面
+        }
+        break;
+      default: break;
+    }
+  }
+  game_start(); 
+  clk.createSprite(240,240);    //创建显存区域
+  clk.fillScreen(TFT_WHITE); //填充全屏白色，TFT_BLACK为TFT库内部定义，可直接使用
+  static uint16_t x = 120, y = 50,j=0,cd=0; //定义方块中心位置
   if(keyNum){
       Serial.println(keyNum);  //串口输出按键值
       switch(keyNum){
@@ -297,42 +210,6 @@ void Game()
   else 
     TJpgDec.drawJpg( x, y,penguinR_60, sizeof(penguinR_60));//在左上角的x,y处绘制图像——在这个草图中，DMA请求在回调tft_output()中处理
 
-
-
-  
-  refresh(v);
-  
-    vector<something>::iterator it;
-    it=v.begin();
-    while(it!=v.end())
-    {
-      if(it->n==1)draw_stone(it->x,it->y);
-      if(it->n==2)draw_tree(it->x,it->y);
-      if(it->n==3)draw_star(it->x,it->y);
-      it++;
-    }
-  j=cj(v,(int)x,(int)y);
-  cd++;
-  initsomething(v,cd);
-  if(j==1)
-  {
-        keyNum=1;state=(state+1)%3;
-  }
-  if(j==2)
-  {
-        score++;
-  }
-
-    
-  clk.setTextColor(TFT_BLACK);
-  clk.drawCentreString("Score", 120, 0, 4); // Draw text centre at position 120, 0 using font 4
-  clk.drawFloat((float)score, 150, 0, 4); 
-  //tft.endWrite();//必须使用endWrite来释放TFT芯片选择和释放SPI通道吗
-  
-  clk.pushSprite(0, 0); //左上角位置
-  clk.deleteSprite();
-     
-  
 }
 
 void EndGame()

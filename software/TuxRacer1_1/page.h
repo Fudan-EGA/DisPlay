@@ -41,6 +41,7 @@ void home_page(uint8_t c); //首页
 void setting_page(uint8_t c, uint8_t vol, uint8_t light);  //设置页面
 void game_select_page(uint8_t c); //游戏选择页面
 int page_run(uint8_t key);  //页面调度状态机运行
+void page_game_quit(char game); //游戏退出
 
 
 
